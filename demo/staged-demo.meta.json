@@ -1,0 +1,25 @@
+{
+  "_note": "Synthetic metadata for demo/staged-demo. No such repository or account exists on GitHub.",
+  "repo": {
+    "full_name": "example/halcyon-liquidity",
+    "name": "halcyon-liquidity",
+    "html_url": "https://github.com/devhorfin/repo-xray/tree/main/demo",
+    "description": "Synthetic demo: a repository built to look staged. Not a real project.",
+    "created_at": "2026-04-20T02:05:50Z",
+    "pushed_at": "2026-10-14T12:00:00Z",
+    "stargazers_count": 0,
+    "forks_count": 0,
+    "size": 1,
+    "language": "Rust",
+    "default_branch": "main"
+  },
+  "owner": {
+    "login": "example",
+    "id": 1000001,
+    "name": "Example Owner",
+    "type": "User",
+    "created_at": "2019-03-22T21:10:19Z",
+    "followers": 0,
+    "public_repos": 1
+  }
+}

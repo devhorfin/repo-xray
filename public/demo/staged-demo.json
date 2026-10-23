@@ -1,0 +1,122 @@
+{
+ "grade": "DRESSED UP",
+ "line": "5 checks flagged, 0 notes. The history looks staged. Read the lines before you decide.",
+ "checks": [
+  {
+   "id": "clock",
+   "name": "Clock",
+   "level": 2,
+   "headline": "The dates don't add up.",
+   "evidence": [
+    "First commit 2019-03-24; repository created on GitHub 2026-04-20 (7.1 years later); account created 2019-03-22.",
+    "Author and committer dates differ on 477 of 477 commits (by up to 4.0 h).",
+    "The history begins 1 day after the account was created, then waits 7.1 years before the repository appears on GitHub.",
+    "Nearly every commit carries a committer date a few hours after its author date. Plain commits normally carry the same time twice; rebases change it, but not uniformly across the whole history."
+   ]
+  },
+  {
+   "id": "metronome",
+   "name": "Metronome",
+   "level": 2,
+   "headline": "A schedule, not a person.",
+   "evidence": [
+    "Commits per full year: 2020: 64, 2021: 63, 2022: 63, 2023: 63, 2024: 63, 2025: 63.",
+    "That curve is flat (variation 1%). Real projects are lumpy: releases, holidays, lost interest.",
+    "Typical gap between commits: 5.8 days (half of all gaps within ±0.1 days of that).",
+    "Commits land on a near-fixed interval. Humans don't; schedulers do.",
+    "29% of commits fall on weekends."
+   ]
+  },
+  {
+   "id": "names",
+   "name": "Names",
+   "level": 2,
+   "headline": "Names and addresses don't belong together.",
+   "evidence": [
+    "Ines Moreau (40 commits) commits as harperwalsh1988@example.com.",
+    "Tomas Reyes (29 commits) commits as quinnmercer0412@example.com.",
+    "Lena Brandt (20 commits) commits as averycollins77@example.com.",
+    "3 of 3 authors commit from an address that reads like a different person's name (19% of commits). Nicknames and initials are not counted."
+   ]
+  },
+  {
+   "id": "masks",
+   "name": "Masks",
+   "level": 2,
+   "headline": "The owner commits under another name.",
+   "evidence": [
+    "Marcus Vell (388 commits) commits with the repository owner's own GitHub address (user 1000001, under the earlier login \"quietgrove\"), and that is not the owner's name."
+   ]
+  },
+  {
+   "id": "crowd",
+   "name": "Crowd",
+   "level": 0,
+   "headline": "Nothing to read.",
+   "evidence": [
+    "A local demo has no forks, pull requests or stars, so this check has nothing to score."
+   ]
+  },
+  {
+   "id": "claims",
+   "name": "Claims",
+   "level": 2,
+   "headline": "The README promises more than the code does.",
+   "evidence": [
+    "The README says money moves (\"reserve backstop deploys capital into pools whose depth falls below a floor.\"), but 1 on-chain source file and 1 client file contain no transfer, CPI or transaction-sending call.",
+    "The program id in programs/halcyon/src/lib.rs is Fg6PaFpo…, the placeholder from Anchor's project template. Nothing was ever deployed under it by this project.",
+    "The README says \"The risk engine and the on-chain program are implemented.\" and also \"The on-chain program is drawn dashed because it is not implemented yet.\"."
+   ],
+   "stats": {
+    "files": 3,
+    "onchain_files": 1,
+    "sentences": 11
+   }
+  }
+ ],
+ "synthetic": true,
+ "copies": {
+  "queries": [],
+  "searched": 0,
+  "count": 0,
+  "young": 0,
+  "first": null,
+  "top_mcap": 0,
+  "volume_24h": 0,
+  "tokens": [],
+  "note": "Synthetic demo: no token lookup."
+ },
+ "repo": {
+  "full_name": "example/halcyon-liquidity",
+  "name": "halcyon-liquidity",
+  "html_url": "https://github.com/devhorfin/repo-xray/tree/main/demo",
+  "description": "Synthetic demo: a repository built to look staged. Not a real project.",
+  "created_at": "2026-04-20T02:05:50Z",
+  "pushed_at": "2026-10-14T12:00:00Z",
+  "stargazers_count": 0,
+  "forks_count": 0,
+  "size": 1,
+  "language": "Rust",
+  "default_branch": "main"
+ },
+ "owner": {
+  "login": "example",
+  "id": 1000001,
+  "name": "Example Owner",
+  "type": "User",
+  "created_at": "2019-03-22T21:10:19Z",
+  "followers": 0,
+  "public_repos": 1
+ },
+ "stats": {
+  "commits": 477,
+  "merges": 0,
+  "authors": 4,
+  "forks": 0,
+  "pulls": 0,
+  "stars_sampled": 0,
+  "files": 3
+ },
+ "checked_at": "2026-10-23T08:29:04.082Z",
+ "version": "0.3.1"
+}

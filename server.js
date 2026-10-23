@@ -128,6 +128,24 @@ async function xray(owner, name) {
     fs.rmSync(dir, { recursive: true, force: true });
   }
 }
+// a local repository with synthetic metadata (the README's demo): same checks, no GitHub or token lookups
+async function xrayLocal(dir, meta) {
+  const out = await run('git', ['-C', dir, 'log', '--format=%H%x1f%an%x1f%ae%x1f%aI%x1f%cn%x1f%ce%x1f%cI', '--no-merges', '--date-order', 'HEAD'], { timeout: 60000 });
+  const commits = out.split('\n').filter(Boolean).map(l => { const [h, an, ae, aI, cn, ce, cI] = l.split('\x1f'); return { h, an, ae, aI, cn, ce, cI }; });
+  const tree = collectFiles(dir);
+  const history = runAll({ commits, repo: meta.repo, owner: meta.owner, idLogins: {}, forks: [], pulls: [], stars: [] });
+  const claims = await checkClaims(tree);
+  const checks = [...history.checks, claims];
+  const crowd = checks.find(c => c.id === 'crowd');
+  if (crowd && !crowd.level) { crowd.headline = 'Nothing to read.'; crowd.evidence = ['A local demo has no forks, pull requests or stars, so this check has nothing to score.']; }
+  return {
+    ...grade(checks), checks, synthetic: true,
+    copies: { queries: [], searched: 0, count: 0, young: 0, first: null, top_mcap: 0, volume_24h: 0, tokens: [], note: 'Synthetic demo: no token lookup.' },
+    repo: meta.repo, owner: meta.owner,
+    stats: { commits: commits.length, merges: 0, authors: new Set(commits.map(c => c.ae)).size, forks: 0, pulls: 0, stars_sampled: 0, files: tree.files.length },
+    checked_at: new Date().toISOString(), version: VERSION,
+  };
+}
 // same rule as checks.js, over six checks
 function grade(checks) {
   const flags = checks.filter(c => c.level === 2).length;
@@ -233,7 +251,12 @@ app.use((req, res) => res.status(404).type('text').send('not found'));
 
 // `node server.js --check owner/name` prints one result and exits (for tests)
 const checkArg = process.argv.indexOf('--check');
-if (checkArg > -1) {
+const localArg = process.argv.indexOf('--check-local');
+if (localArg > -1) {
+  const metaArg = process.argv.indexOf('--meta');
+  const meta = JSON.parse(fs.readFileSync(process.argv[metaArg + 1], 'utf8'));
+  xrayLocal(process.argv[localArg + 1], meta).then(r => { console.log(JSON.stringify(r, null, 1)); process.exit(0); }, e => { console.error(e.message); process.exit(1); });
+} else if (checkArg > -1) {
   const p = parseRepo(process.argv[checkArg + 1]);
   loadToken().then(() => xray(p.owner, p.name)).then(r => { console.log(JSON.stringify(r, null, 1)); process.exit(0); }, e => { console.error(e.message); process.exit(1); });
 } else {

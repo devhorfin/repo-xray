@@ -12,7 +12,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>REPO X-RAY — check a GitHub repo before the coin does</title>
-<meta name="description" content="Paste a GitHub link. Five checks on the repository's history, each with its evidence: clock, metronome, names, masks, crowd.">
+<meta name="description" content="Paste a GitHub link. Six checks on the repository, each with its evidence: clock, metronome, names, masks, crowd and claims.">
 <meta name="theme-color" content="#090910">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -62,6 +62,7 @@ input:focus{border-color:rgba(123,92,255,.6)}
 .repo-line a{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--ink)}
 .repo-line a:hover{color:var(--accent)}
 .repo-line span{font-size:13px;color:var(--dim)}
+.repo-line .chip{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(123,92,255,.45);border-radius:6px;padding:3px 8px}
 .desc{color:var(--muted);font-size:14px;max-width:70ch}
 .grade{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px;margin-top:4px}
 .grade b{font-family:Sora,sans-serif;font-weight:300;font-size:clamp(26px,5vw,38px);letter-spacing:-.02em;line-height:1.1}
@@ -128,14 +129,14 @@ footer{padding:28px var(--pad) 40px;border-top:1px solid var(--line-soft);color:
 <body>
 <header>
   <a class="wordmark" href="/">REPO X-RAY</a>
-  <span class="ver mono" id="ver">v0.3.0</span>
+  <span class="ver mono" id="ver">v0.3.1</span>
 </header>
 
 <main class="wrap">
   <div class="hero">
-    <div class="eyebrow">Five checks on a repository's history</div>
+    <div class="eyebrow">Six checks on a repository</div>
     <h1>Everyone checks the stars. <em>Nobody checks the clock.</em></h1>
-    <p class="lede">Paste a GitHub link. Ten seconds later you get the clock, the rhythm, the names, the masks and the crowd, each with the line of evidence it rests on. No verdict without a receipt.</p>
+    <p class="lede">Paste a GitHub link. Ten seconds later you get the clock, the rhythm, the names, the masks, the crowd and what the README claims, each with the line of evidence it rests on. No verdict without a receipt.</p>
     <form id="f" autocomplete="off">
       <input id="repo" type="text" inputmode="url" placeholder="https://github.com/owner/repo" aria-label="GitHub repository link" required>
       <button class="btn" id="go" type="submit">Check it</button>
@@ -175,7 +176,7 @@ footer{padding:28px var(--pad) 40px;border-top:1px solid var(--line-soft);color:
 
 <footer>
   <span>Reads public GitHub data only. Unknown is not fake.</span>
-  <span class="mono" id="ver2">repo-xray v0.3.0</span>
+  <span class="mono" id="ver2">repo-xray v0.3.1</span>
 </footer>
 
 <script>
@@ -191,7 +192,7 @@ function render(r) {
   out.innerHTML = `
   <div class="card">
     <div class="head">
-      <div class="repo-line"><a href="${esc(r.repo.html_url)}" target="_blank" rel="noopener">${esc(r.repo.full_name)}</a><span>${esc(r.repo.language || '')}</span><span>created ${esc(r.repo.created_at.slice(0,10))}</span></div>
+      <div class="repo-line">${r.synthetic ? '<span class="chip">Synthetic demo</span>' : ''}<a href="${esc(r.repo.html_url)}" target="_blank" rel="noopener">${esc(r.repo.full_name)}</a><span>${esc(r.repo.language || '')}</span><span>created ${esc(r.repo.created_at.slice(0,10))}</span></div>
       ${r.repo.description ? `<div class="desc">${esc(r.repo.description)}</div>` : ''}
       <div class="grade g${g}"><b>${esc(r.grade)}</b><small>${esc(r.line)}</small></div>
       <div class="stats"><span><b>${st.commits}</b> commits</span><span><b>${st.authors}</b> authors</span><span><b>${r.repo.stargazers_count}</b> stars</span><span><b>${r.repo.forks_count}</b> forks</span><span><b>${st.pulls}</b> pull requests</span></div>
@@ -201,10 +202,13 @@ function render(r) {
       <div class="k"><span class="name">${esc(c.name)}</span><span class="lvl">${LVL[c.level]}</span></div>
       <div><div class="hl">${esc(c.headline)}</div><ul>${c.evidence.map(e => `<li>${esc(e)}</li>`).join('')}</ul></div>
     </div>`).join('')}
-    ${renderCopies(r.copies)}
-    <div class="foot"><span>Checked ${esc(ago(r.checked_at))} · public data from github.com · owner account created ${esc((r.owner.created_at||'').slice(0,10))}</span><span class="acts"><button type="button" id="share">Copy link</button><button type="button" id="refresh">Re-check now</button></span></div>
+    ${r.synthetic ? '' : renderCopies(r.copies)}
+    ${r.synthetic
+      ? `<div class="foot"><span>Synthetic demo: a local repository built by <span class="mono">demo/make-staged-demo.mjs</span> to look staged. No such project, account or person exists.</span></div>`
+      : `<div class="foot"><span>Checked ${esc(ago(r.checked_at))} · public data from github.com · owner account created ${esc((r.owner.created_at||'').slice(0,10))}</span><span class="acts"><button type="button" id="share">Copy link</button><button type="button" id="refresh">Re-check now</button></span></div>`}
   </div>`;
   document.title = `${r.repo.full_name}: ${r.grade} — REPO X-RAY`;
+  if (r.synthetic) return;
   $('#refresh').onclick = () => check(r.repo.full_name, true);
   $('#share').onclick = async () => {
     const url = `${location.origin}/r/${r.repo.full_name}`;
@@ -256,8 +260,17 @@ fetch('/api/health').then(r => r.json()).then(h => {
   $('#paynet').textContent = !h.paid ? 'paid route not switched on yet' : h.paid.network === 'mainnet' ? `Solana mainnet, ${h.paid.price} per call` : `Solana devnet while in test (test USDC, ${h.paid.price} per call)`;
 }).catch(() => {});
 loadRecent();
+// ?demo=staged shows the synthetic demo result (demo/make-staged-demo.mjs) without a network call to GitHub
+async function showDemo(name) {
+  try {
+    const j = await (await fetch(`/demo/${encodeURIComponent(name)}-demo.json`)).json();
+    input.value = j.repo.full_name; render(j);
+  } catch { status.className = 'status err'; status.textContent = 'No such demo.'; }
+}
 const share = location.pathname.match(/^\/r\/([^/]+\/[^/]+)\/?$/);
-const q = share ? decodeURIComponent(share[1]) : new URLSearchParams(location.search).get('repo'); if (q) check(q);
+const params = new URLSearchParams(location.search);
+const q = share ? decodeURIComponent(share[1]) : params.get('repo');
+if (params.get('demo')) showDemo(params.get('demo')); else if (q) check(q);
 </script>
 </body>
 </html>

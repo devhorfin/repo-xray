@@ -2,3 +2,5 @@ cache/
 node_modules/
 .keys/
 qa/
+demo/staged-demo/
+docs/img/frames/

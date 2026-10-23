@@ -1,6 +1,6 @@
 {
   "name": "repo-xray",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Paste a GitHub link, get six checks on the repository (history and README vs code), each with its evidence, plus the tokens carrying its name. Pay-per-call over x402 on Solana.",
   "main": "server.js",
   "scripts": {
