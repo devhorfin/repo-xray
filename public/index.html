@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<!--
+  REPO X-RAY — slice 1
+  1. Who   : traders deciding in 60 s whether a repo coin's repo is real; devs who want a clean card to post
+  2. Promise: paste a GitHub link, get five checks with their evidence in ten seconds
+  3. Feeling: quiet, exact, a lab report (not an alarm)
+  4. Brand : the evidence line is the product; the grade only summarises it
+  Design: clean-web tokens, house flat-dark palette (#090910 / #7b5cff). No art: the card is the hero.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>REPO X-RAY — check a GitHub repo before the coin does</title>
+<meta name="description" content="Paste a GitHub link. Five checks on the repository's history, each with its evidence: clock, metronome, names, masks, crowd.">
+<meta name="theme-color" content="#090910">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#090910;--bg-2:#0e0e18;
+  --ink:#E9EDF6;--muted:#77859E;--dim:#4C5872;
+  --accent:#7b5cff;
+  --line:rgba(255,255,255,.08);--line-soft:rgba(255,255,255,.05);
+  --r:12px;--pad:clamp(16px,5vw,64px);
+  --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-top:var(--safe-t);padding-bottom:var(--safe-b)}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--accent);color:#0a0a0a}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
+.wrap{max-width:860px;margin:0 auto;padding-inline:var(--pad)}
+h1{font-family:Sora,sans-serif;font-weight:200;font-size:clamp(30px,6.4vw,58px);line-height:1.08;letter-spacing:-.025em;color:#C9D3E4;margin-top:16px}
+h1 em{font-style:normal;color:var(--ink)}
+.lede{color:var(--muted);font-size:clamp(15px,1.9vw,17px);margin-top:18px;max-width:56ch}
+
+header{display:flex;align-items:center;justify-content:space-between;padding:18px var(--pad)}
+.wordmark{font-family:Sora,sans-serif;font-weight:600;font-size:13px;letter-spacing:.34em;color:var(--ink)}
+.ver{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;color:var(--dim)}
+
+.hero{padding:clamp(40px,8vw,96px) 0 clamp(28px,5vw,48px)}
+form{margin-top:28px;display:flex;gap:10px;flex-wrap:wrap}
+input{flex:1 1 320px;min-width:0;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:500 15px/1 'JetBrains Mono',monospace;padding:16px 18px;outline:none;transition:border-color .2s}
+input::placeholder{color:var(--dim);font-weight:400}
+input:focus{border-color:rgba(123,92,255,.6)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:16px 26px;border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;transition:.22s;border:1px solid var(--accent);background:var(--accent);color:#0A0A0F;font-weight:500;cursor:pointer;flex:0 0 auto}
+.btn:hover{filter:brightness(1.1);box-shadow:0 8px 34px rgba(123,92,255,.22)}
+.btn[disabled]{opacity:.55;cursor:wait;box-shadow:none}
+.hint{margin-top:12px;font-size:13px;color:var(--dim)}
+.hint button{background:none;border:0;color:var(--muted);font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.hint button:hover{color:var(--ink)}
+
+/* result card */
+.card{margin-top:clamp(28px,5vw,44px);border:1px solid var(--line-soft);border-radius:var(--r);overflow:hidden;background:var(--line-soft);display:grid;gap:1px}
+.card>*{background:var(--bg)}
+.head{padding:clamp(20px,4vw,30px) clamp(18px,3vw,28px);display:grid;gap:14px}
+.repo-line{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline}
+.repo-line a{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--ink)}
+.repo-line a:hover{color:var(--accent)}
+.repo-line span{font-size:13px;color:var(--dim)}
+.desc{color:var(--muted);font-size:14px;max-width:70ch}
+.grade{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px;margin-top:4px}
+.grade b{font-family:Sora,sans-serif;font-weight:300;font-size:clamp(26px,5vw,38px);letter-spacing:-.02em;line-height:1.1}
+.grade.g2 b{color:var(--accent)}
+.grade.g1 b{color:var(--ink)}
+.grade.g0 b{color:#C9D3E4}
+.grade small{color:var(--muted);font-size:14px}
+.stats{display:flex;flex-wrap:wrap;gap:6px 22px;font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.08em;color:var(--dim);text-transform:uppercase}
+.stats b{color:var(--muted);font-weight:500}
+
+.check{padding:clamp(18px,3.5vw,26px) clamp(18px,3vw,28px);display:grid;grid-template-columns:120px 1fr;gap:6px 24px}
+@media(max-width:560px){.check{grid-template-columns:1fr;gap:6px}}
+.check .k{display:flex;flex-direction:column;gap:6px}
+.check .name{font-family:Sora,sans-serif;font-weight:400;font-size:15px;color:var(--ink)}
+.check .lvl{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.check.l2 .lvl{color:var(--accent)}
+.check.l1 .lvl{color:var(--muted)}
+.check .hl{font-size:15px;color:var(--ink);margin-bottom:6px}
+.check ul{list-style:none;display:grid;gap:6px}
+.check li{color:var(--muted);font-size:14px;padding-left:16px;position:relative}
+.check li::before{content:"—";position:absolute;left:0;color:var(--dim)}
+.card .foot{padding:16px clamp(18px,3vw,28px);font-size:12.5px;color:var(--dim);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
+.card .foot button{background:none;border:0;color:var(--muted);font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.card .foot .acts{display:flex;gap:18px}
+
+/* tokens carrying the name */
+.copies{padding:clamp(18px,3.5vw,26px) clamp(18px,3vw,28px);display:grid;gap:10px}
+.copies .t{font-family:Sora,sans-serif;font-weight:400;font-size:15px;color:var(--ink)}
+.copies .sum{color:var(--muted);font-size:14px}
+.copies table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+.copies th{text-align:left;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);font-weight:500;padding:8px 10px 8px 0;border-bottom:1px solid var(--line-soft)}
+.copies td{padding:9px 10px 9px 0;border-bottom:1px solid var(--line-soft);color:var(--muted);vertical-align:top}
+.copies td.n{color:var(--ink)}
+.copies td.n a:hover{color:var(--accent)}
+.copies td .ca{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--dim);display:block}
+.copies .num{text-align:right;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.copies .note{font-size:12.5px;color:var(--dim)}
+@media(max-width:560px){.copies .hide-s{display:none}}
+
+.status{margin-top:28px;font-family:'JetBrains Mono',monospace;font-size:12.5px;letter-spacing:.06em;color:var(--muted);min-height:1.5em}
+.status.err{color:#e9a0a0}
+
+section.how{padding:clamp(56px,9vw,100px) 0}
+.grid{display:grid;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:var(--r);overflow:hidden;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:28px}
+.cell{background:var(--bg);padding:clamp(20px,3.6vw,30px) clamp(16px,3vw,24px)}
+.cell .n{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--accent)}
+.cell h3{font-family:Sora,sans-serif;font-weight:400;font-size:16px;margin:10px 0 6px;color:var(--ink)}
+.cell p{color:var(--muted);font-size:13.5px}
+
+section.recent{padding:0 0 clamp(56px,9vw,100px)}
+section.agents{padding:0 0 clamp(56px,9vw,100px)}
+.list{margin-top:20px;border:1px solid var(--line-soft);border-radius:var(--r);overflow:hidden;display:grid;gap:1px;background:var(--line-soft)}
+.row{background:var(--bg);display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;padding:12px clamp(14px,3vw,22px);font-size:13.5px;cursor:pointer}
+.row:hover{background:rgba(255,255,255,.022)}
+.row .r{font-family:'JetBrains Mono',monospace;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .g{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.row .g.g2{color:var(--accent)}
+.row .d{color:var(--dim);font-size:12px}
+footer{padding:28px var(--pad) 40px;border-top:1px solid var(--line-soft);color:var(--dim);font-size:12.5px;display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
+.hidden{display:none}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<header>
+  <a class="wordmark" href="/">REPO X-RAY</a>
+  <span class="ver mono" id="ver">v0.3.0</span>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <div class="eyebrow">Five checks on a repository's history</div>
+    <h1>Everyone checks the stars. <em>Nobody checks the clock.</em></h1>
+    <p class="lede">Paste a GitHub link. Ten seconds later you get the clock, the rhythm, the names, the masks and the crowd, each with the line of evidence it rests on. No verdict without a receipt.</p>
+    <form id="f" autocomplete="off">
+      <input id="repo" type="text" inputmode="url" placeholder="https://github.com/owner/repo" aria-label="GitHub repository link" required>
+      <button class="btn" id="go" type="submit">Check it</button>
+    </form>
+    <p class="hint">Try <button type="button" data-try="sindresorhus/got">sindresorhus/got</button> or <button type="button" data-try="expressjs/express">expressjs/express</button>. Public repositories only; nothing is written to GitHub.</p>
+    <div class="status" id="status"></div>
+    <div id="out"></div>
+  </div>
+
+  <section class="how">
+    <div class="eyebrow">01 — What each check reads</div>
+    <div class="grid">
+      <div class="cell"><div class="n">1</div><h3>Clock</h3><p>The first commit's date against the day the repository and the account were created, and whether the author and committer clocks agree.</p></div>
+      <div class="cell"><div class="n">2</div><h3>Metronome</h3><p>Commits per year and the gap between commits. Real work is lumpy. A fixed beat for years is a schedule.</p></div>
+      <div class="cell"><div class="n">3</div><h3>Names</h3><p>Every author's name against the address they commit with. A name that shares nothing with its email is a costume more often than a quirk.</p></div>
+      <div class="cell"><div class="n">4</div><h3>Masks</h3><p>GitHub's own no-reply addresses carry the user's numeric id. If the owner's id commits under another name, that's one person in several coats.</p></div>
+      <div class="cell"><div class="n">5</div><h3>Crowd</h3><p>Forks, stars and pull requests that arrive within minutes of each other from name-plus-digits accounts.</p></div>
+      <div class="cell"><div class="n">6</div><h3>Claims</h3><p>What the README promises against what the code holds: money that "moves" with no transfer in the program, a program id that is Anchor's placeholder or sits on no network, "implemented" next to "not implemented", an audit nobody can find, a partner the code never names.</p></div>
+      <div class="cell"><div class="n">=</div><h3>Grade</h3><p>CLEAN, LOOK CLOSER or DRESSED UP. Two flags, or one flag with two notes, is DRESSED UP. An old project moved from elsewhere can earn a note; it takes several checks together to earn a flag. Under the checks: the tokens on DexScreener that carry the repository's name.</p></div>
+    </div>
+  </section>
+
+  <section class="agents">
+    <div class="eyebrow">02 — For agents</div>
+    <div class="grid">
+      <div class="cell"><div class="n">$0.01</div><h3>Per call, in USDC, over x402</h3><p>No key, no account. Your agent asks, gets a 402 with the price, pays, and the card comes back as JSON. On Solana the payment is final in about 150 ms since Alpenglow, so the answer is not held up by the money.</p></div>
+      <div class="cell"><div class="n">GET</div><h3 class="mono" style="font-size:13px;letter-spacing:0">/api/v1/xray?repo=owner/name</h3><p>Same six checks, same evidence lines, same copycat-token table. Pays over x402 "exact" with USDC: <span id="paynet">devnet while in test</span>. Any x402 client works; the <span class="mono">pay-test.mjs</span> in the repo is one.</p></div>
+      <div class="cell"><div class="n">FREE</div><h3>This page</h3><p>The free route is for people: ten checks an hour per address. Results are cached for an hour and listed below.</p></div>
+    </div>
+  </section>
+
+  <section class="recent">
+    <div class="eyebrow">03 — Recently checked</div>
+    <div class="list" id="recent"></div>
+  </section>
+</main>
+
+<footer>
+  <span>Reads public GitHub data only. Unknown is not fake.</span>
+  <span class="mono" id="ver2">repo-xray v0.3.0</span>
+</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+const f = $('#f'), input = $('#repo'), go = $('#go'), status = $('#status'), out = $('#out');
+const LVL = ['clean', 'note', 'flag'];
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ago = iso => { const m = Math.round((Date.now() - Date.parse(iso)) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' d ago'; };
+
+function render(r) {
+  const g = r.grade === 'DRESSED UP' ? 2 : r.grade === 'LOOK CLOSER' ? 1 : 0;
+  const st = r.stats || {};
+  out.innerHTML = `
+  <div class="card">
+    <div class="head">
+      <div class="repo-line"><a href="${esc(r.repo.html_url)}" target="_blank" rel="noopener">${esc(r.repo.full_name)}</a><span>${esc(r.repo.language || '')}</span><span>created ${esc(r.repo.created_at.slice(0,10))}</span></div>
+      ${r.repo.description ? `<div class="desc">${esc(r.repo.description)}</div>` : ''}
+      <div class="grade g${g}"><b>${esc(r.grade)}</b><small>${esc(r.line)}</small></div>
+      <div class="stats"><span><b>${st.commits}</b> commits</span><span><b>${st.authors}</b> authors</span><span><b>${r.repo.stargazers_count}</b> stars</span><span><b>${r.repo.forks_count}</b> forks</span><span><b>${st.pulls}</b> pull requests</span></div>
+    </div>
+    ${r.checks.map(c => `
+    <div class="check l${c.level}">
+      <div class="k"><span class="name">${esc(c.name)}</span><span class="lvl">${LVL[c.level]}</span></div>
+      <div><div class="hl">${esc(c.headline)}</div><ul>${c.evidence.map(e => `<li>${esc(e)}</li>`).join('')}</ul></div>
+    </div>`).join('')}
+    ${renderCopies(r.copies)}
+    <div class="foot"><span>Checked ${esc(ago(r.checked_at))} · public data from github.com · owner account created ${esc((r.owner.created_at||'').slice(0,10))}</span><span class="acts"><button type="button" id="share">Copy link</button><button type="button" id="refresh">Re-check now</button></span></div>
+  </div>`;
+  document.title = `${r.repo.full_name}: ${r.grade} — REPO X-RAY`;
+  $('#refresh').onclick = () => check(r.repo.full_name, true);
+  $('#share').onclick = async () => {
+    const url = `${location.origin}/r/${r.repo.full_name}`;
+    try { await navigator.clipboard.writeText(url); $('#share').textContent = 'Link copied'; } catch { $('#share').textContent = url; }
+  };
+}
+const money = n => n >= 1e6 ? '$' + (n / 1e6).toFixed(2) + 'M' : n >= 1e3 ? '$' + Math.round(n / 1e3) + 'K' : '$' + Math.round(n);
+const age = iso => { if (!iso) return '?'; const h = (Date.now() - Date.parse(iso)) / 3600000; return h < 1 ? Math.round(h * 60) + ' min' : h < 48 ? Math.round(h) + ' h' : Math.round(h / 24) + ' d'; };
+function renderCopies(c) {
+  if (!c) return '';
+  const q = c.queries.map(x => `"${esc(x)}"`).join(' or ');
+  if (!c.count) return `<div class="copies"><div class="t">Tokens carrying this name</div><div class="sum">None found on DexScreener for ${q}.</div><div class="note">${esc(c.note)}</div></div>`;
+  const sum = `${c.count} token${c.count === 1 ? '' : 's'} named ${q}${c.young ? `, ${c.young} minted in the last 30 days` : ''}; first ${c.first ? age(c.first) + ' ago' : '?'}; biggest ${money(c.top_mcap)} market cap; ${money(c.volume_24h)} traded in 24 h.`;
+  const rows = c.tokens.map(t => `<tr><td class="n"><a href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.symbol)} · ${esc(t.name)}</a><span class="ca">${esc(t.chain)} · ${esc(t.address.slice(0,6))}…${esc(t.address.slice(-4))}</span></td><td class="num">${money(t.mcap)}</td><td class="num hide-s">${money(t.vol24)}</td><td class="num">${esc(age(t.created))}</td></tr>`).join('');
+  return `<div class="copies"><div class="t">Tokens carrying this name</div><div class="sum">${sum}</div>
+    <table><thead><tr><th>Token</th><th class="num">Mcap</th><th class="num hide-s">Vol 24h</th><th class="num">Age</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="note">${esc(c.note)}</div></div>`;
+}
+
+async function check(repo, fresh) {
+  input.value = repo; go.disabled = true; status.className = 'status';
+  status.textContent = 'Reading the history… (a bare clone, no file contents; up to a minute for big repositories)';
+  out.innerHTML = '';
+  try {
+    const r = await fetch(`/api/xray?repo=${encodeURIComponent(repo)}${fresh ? '&fresh=1' : ''}`);
+    const j = await r.json();
+    if (!r.ok || j.error) throw new Error(j.error || `Server said ${r.status}`);
+    status.textContent = '';
+    render(j);
+    history.replaceState(null, '', `/r/${j.repo.full_name}`);
+    loadRecent();
+  } catch (e) {
+    status.className = 'status err'; status.textContent = e.message;
+  } finally { go.disabled = false; }
+}
+f.addEventListener('submit', e => { e.preventDefault(); if (input.value.trim()) check(input.value.trim()); });
+document.querySelectorAll('[data-try]').forEach(b => b.onclick = () => check(b.dataset.try));
+
+async function loadRecent() {
+  try {
+    const list = await (await fetch('/api/recent')).json();
+    $('#recent').innerHTML = list.length ? list.map(x => `<div class="row" data-repo="${esc(x.full_name)}"><span class="r">${esc(x.full_name)}</span><span class="g ${x.grade === 'DRESSED UP' ? 'g2' : ''}">${esc(x.grade)}</span><span class="d">${esc(ago(x.checked_at))}</span></div>`).join('')
+      : '<div class="row"><span class="d">Nothing checked yet.</span></div>';
+    document.querySelectorAll('.row[data-repo]').forEach(el => el.onclick = () => { check(el.dataset.repo); scrollTo({ top: 0, behavior: 'smooth' }); });
+  } catch {}
+}
+fetch('/api/health').then(r => r.json()).then(h => {
+  $('#ver').textContent = 'v' + h.version; $('#ver2').textContent = 'repo-xray v' + h.version;
+  $('#paynet').textContent = !h.paid ? 'paid route not switched on yet' : h.paid.network === 'mainnet' ? `Solana mainnet, ${h.paid.price} per call` : `Solana devnet while in test (test USDC, ${h.paid.price} per call)`;
+}).catch(() => {});
+loadRecent();
+const share = location.pathname.match(/^\/r\/([^/]+\/[^/]+)\/?$/);
+const q = share ? decodeURIComponent(share[1]) : new URLSearchParams(location.search).get('repo'); if (q) check(q);
+</script>
+</body>
+</html>
