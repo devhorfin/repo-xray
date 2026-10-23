@@ -244,7 +244,22 @@ if (PAY.enabled) {
 }
 app.get('/api/xray', (req, res) => handleXray(req, res, false));
 app.get('/api/recent', (req, res) => res.json(recent()));
-app.get('/api/health', (req, res) => res.json({ ok: true, version: VERSION, token: Boolean(TOKEN), paid: PAY.enabled ? { network: PAY.network, price: PAY.price, payTo: PAY.payTo, facilitator: PAY.facilitator, route: 'GET /api/v1/xray?repo=owner/name' } : null }));
+// GitHub's own count of calls left this hour (the /rate_limit call itself is free), read at most once a minute
+let rateCache = { at: 0, core: null };
+async function rateLimit() {
+  if (Date.now() - rateCache.at < 60000) return rateCache.core;
+  try { const j = await gh(`${API}/rate_limit`); rateCache = { at: Date.now(), core: { remaining: j.resources.core.remaining, limit: j.resources.core.limit, reset: j.resources.core.reset } }; }
+  catch { rateCache = { at: Date.now(), core: null }; }
+  return rateCache.core;
+}
+function cachedCount() {
+  try { return fs.readdirSync(CACHE).filter(f => f.endsWith('.json')).map(f => { try { return JSON.parse(fs.readFileSync(path.join(CACHE, f), 'utf8')); } catch { return null; } })
+    .filter(j => j && j.version === VERSION && Date.now() - Date.parse(j.checked_at) < CACHE_TTL).length; } catch { return 0; }
+}
+app.get('/api/health', async (req, res) => res.json({
+  ok: true, version: VERSION, token: Boolean(TOKEN), github: await rateLimit(), cached: cachedCount(),
+  paid: PAY.enabled ? { network: PAY.network, price: PAY.price, payTo: PAY.payTo, facilitator: PAY.facilitator, route: 'GET /api/v1/xray?repo=owner/name' } : null,
+}));
 app.get(/^\/r\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)\/?$/, (req, res) => res.type('html').send(sharePage({ owner: req.params[0], name: req.params[1] })));
 app.use(express.static(PUBLIC, { index: 'index.html' }));
 app.use((req, res) => res.status(404).type('text').send('not found'));

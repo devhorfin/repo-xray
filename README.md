@@ -6,20 +6,21 @@
 
 <p align="center">
   <b>Paste a GitHub link. Get six checks on the repository, each with the line of evidence it rests on.</b><br>
-  <sub>No verdict without a receipt. Unknown is not fake.</sub>
+  <sub>No verdict without a receipt. Unknown is not fake.</sub><br>
+  <sub>A desktop app in the browser: a program window, a live log, a taskbar. Every number on screen is real.</sub>
 </p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-0.3.1-7b5cff?style=flat-square">
+  <img alt="version" src="https://img.shields.io/badge/version-0.4.0-d5d7dd?style=flat-square">
   <img alt="node" src="https://img.shields.io/badge/node-%E2%89%A518-090910?style=flat-square&logo=node.js&logoColor=white">
   <img alt="checks" src="https://img.shields.io/badge/checks-6-090910?style=flat-square">
   <img alt="x402" src="https://img.shields.io/badge/x402-v2%20exact-090910?style=flat-square">
   <img alt="solana" src="https://img.shields.io/badge/USDC-Solana-090910?style=flat-square&logo=solana&logoColor=white">
-  <img alt="price" src="https://img.shields.io/badge/agents-%240.01%20per%20call-7b5cff?style=flat-square">
+  <img alt="price" src="https://img.shields.io/badge/agents-%240.01%20per%20call-22c358?style=flat-square">
 </p>
 
 <p align="center">
-  <img src="docs/img/demo.gif" alt="Typing a repository link, pressing Check it, and scrolling through a DRESSED UP card" width="100%">
+  <img src="docs/img/demo.gif" alt="Typing a repository link, pressing RUN_XRAY(), watching the log fill with flags, and scrolling through a DRESSED UP report" width="100%">
 </p>
 
 <p align="center"><sub>The repository in this recording is <b>synthetic</b>: built by <a href="demo/make-staged-demo.mjs"><code>demo/make-staged-demo.mjs</code></a> to look staged. No such project, account or person exists.</sub></p>
@@ -36,12 +37,19 @@ REPO X-RAY reads the parts that are hard to fake together: when the history star
 repository were born, how the commits are spaced, whose names sit on which addresses, which GitHub id is really
 behind the commits, how the crowd arrived, and whether the README's promises exist in the code.
 
-## Two cards
+## The log
+
+The log panel prints only what is true: the server's state at start (GitHub calls left this hour, the paid route,
+the cache), then the request, then one line per check and the grade. The taskbar keeps the same numbers.
+
+<p align="center"><img src="docs/img/log-dressed-up.png" alt="The main window with the log filled by a DRESSED UP check" width="90%"></p>
+
+## Two reports
 
 <table>
   <tr>
-    <td width="50%" valign="top"><img src="docs/img/card-dressed-up-top.png" alt="A DRESSED UP card: Clock, Metronome and Names flagged"></td>
-    <td width="50%" valign="top"><img src="docs/img/card-clean-top.png" alt="A CLEAN card for sindresorhus/got"></td>
+    <td width="50%" valign="top"><img src="docs/img/card-dressed-up-top.png" alt="A DRESSED UP report: Clock, Metronome, Names and Masks flagged"></td>
+    <td width="50%" valign="top"><img src="docs/img/card-clean-top.png" alt="A CLEAN report for sindresorhus/got"></td>
   </tr>
   <tr>
     <td align="center"><b>DRESSED UP</b> · synthetic demo<br><sub>477 commits from 2019, one every 5.8 days, persona co-authors, the owner under another name, a README that promises money moves</sub></td>
@@ -51,7 +59,7 @@ behind the commits, how the crowd arrived, and whether the README's promises exi
 
 ## The six checks
 
-<p align="center"><img src="docs/img/six-checks.png" alt="The six checks and the grade" width="80%"></p>
+<p align="center"><img src="docs/img/six-checks.png" alt="The CHECKS.TXT window: the six checks and the grade" width="80%"></p>
 
 | | Check | Reads | Flags when | Evidence line it prints |
 |---|---|---|---|---|
@@ -97,7 +105,7 @@ Nothing is written to GitHub. Both clones are deleted when the check ends. Resul
 
 ## For agents: $0.01 a call over x402
 
-<p align="center"><img src="docs/img/for-agents.png" alt="The For agents section of the page" width="80%"></p>
+<p align="center"><img src="docs/img/for-agents.png" alt="The AGENTS.TXT window" width="80%"></p>
 
 `GET /api/v1/xray?repo=owner/name` is behind [x402](https://x402.org) v2, scheme `exact`, USDC on Solana. No key and
 no account: the agent asks, gets a `402` with the price, pays, and the same card comes back as JSON with a receipt.
@@ -137,7 +145,7 @@ Config lives in `xray.config.json` or env (`XRAY_NETWORK`, `XRAY_PAYTO`, `XRAY_P
 The payer needs USDC on the chosen network and no SOL: the facilitator pays the fee. Devnet USDC comes from Circle's
 faucet (faucet.circle.com).
 
-> **Status (v0.3.1):** the 402 challenge and the client's signed payment are proven on devnet. The facilitator rejected
+> **Status (v0.4.0):** the 402 challenge and the client's signed payment are proven on devnet. The facilitator rejected
 > the test payment because the payer held no devnet USDC, so a settled paid call has not been seen yet.
 
 ## On a phone
@@ -145,7 +153,7 @@ faucet (faucet.circle.com).
 <p align="center">
   <img src="docs/img/phone-fold.png" alt="The page on a 430 px phone" width="30%">
   &nbsp;&nbsp;
-  <img src="docs/img/phone-card.png" alt="The DRESSED UP demo card on a phone" width="30%">
+  <img src="docs/img/phone-card.png" alt="The DRESSED UP demo report on a phone" width="30%">
 </p>
 
 ## Calibration
@@ -185,7 +193,7 @@ node server.js --check-local demo/staged-demo --meta demo/staged-demo.meta.json 
 node docs/capture.cjs                   # needs Playwright's Chromium and the server running
 ```
 
-The page shows the demo at `/?demo=staged`, with a SYNTHETIC DEMO chip on the card.
+The page shows the demo at `/?demo=staged` (or the Demo icon), labelled SYNTHETIC DEMO on the report.
 
 ## What it reads
 
@@ -207,7 +215,7 @@ Repositories over 300 MB and forks are refused with a plain message.
 | `server.js` | express: the page, `/api/xray` (free, limited), `/api/v1/xray` (x402), `/api/recent`, `/api/health`, `/r/owner/name` |
 | `checks.js` | the five history checks, pure functions |
 | `claims.js` | the Claims check (README vs code) and the token lookup |
-| `public/index.html` | the page |
+| `public/index.html` | the page: a desktop-app shell (menu bar, desktop icons, windows, log, taskbar), icons from Lucide |
 | `pay-test.mjs` · `setup-devnet.mjs` | a paying x402 client · devnet receiver wallet + USDC account |
 | `demo/` | the synthetic staged repository's generator and metadata |
 | `docs/capture.cjs` · `docs/img/` | the README's screenshots and GIF |

@@ -11,7 +11,7 @@ const GENERIC_LOCAL = new Set(['git', 'dev', 'me', 'admin', 'info', 'mail', 'hel
 
 function fmtDate(iso) { return iso ? String(iso).slice(0, 10) : '?'; }
 function years(ms) { return (ms / (365.25 * DAY)).toFixed(1); }
-function plural(n, w) { return `${n} ${w}${n === 1 ? '' : 's'}`; }
+function plural(n, w) { return `${n} ${w}${n === 1 ? '' : /(s|x|ch|sh)$/.test(w) ? 'es' : 's'}`; }
 function isBot(c) { return BOT_RE.test(c.an) || BOT_RE.test(c.ae); }
 
 // ---------- helpers over the commit list ----------

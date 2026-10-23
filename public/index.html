@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <!--
-  REPO X-RAY — slice 1
-  1. Who   : traders deciding in 60 s whether a repo coin's repo is real; devs who want a clean card to post
-  2. Promise: paste a GitHub link, get five checks with their evidence in ten seconds
-  3. Feeling: quiet, exact, a lab report (not an alarm)
-  4. Brand : the evidence line is the product; the grade only summarises it
-  Design: clean-web tokens, house flat-dark palette (#090910 / #7b5cff). No art: the card is the hero.
+  REPO X-RAY — desktop-OS shell (v0.4.0)
+  Design reference: the owner's screenshot of a retro desktop app (menu bar, desktop icons, a program window
+  with a light title bar, a log panel, a taskbar). Tokens lifted from studies/agentexe/CAPTURE.md:
+  Inter 400–900, desktop #1c1e22, window #25272d, title bar #d5d7dd, terminal #080a09, green #22c358.
+  House rules kept: no status dots, no ticking clock or blinking cursor, no invented numbers. The log and
+  the taskbar only print real facts (server health, GitHub's own call count, the check's own results).
+  Icons: Lucide (pinned CDN), not drawn by hand.
 -->
 <html lang="en">
 <head>
@@ -13,264 +14,523 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>REPO X-RAY — check a GitHub repo before the coin does</title>
 <meta name="description" content="Paste a GitHub link. Six checks on the repository, each with its evidence: clock, metronome, names, masks, crowd and claims.">
-<meta name="theme-color" content="#090910">
+<meta name="theme-color" content="#1c1e22">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
 <style>
 :root{
-  --bg:#090910;--bg-2:#0e0e18;
-  --ink:#E9EDF6;--muted:#77859E;--dim:#4C5872;
-  --accent:#7b5cff;
-  --line:rgba(255,255,255,.08);--line-soft:rgba(255,255,255,.05);
-  --r:12px;--pad:clamp(16px,5vw,64px);
-  --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);
+  --desk:#1c1e22; --win:#25272d; --deep:#0f1115; --term:#080a09; --raise:#2e3138; --edge:#3a3d45;
+  --bar:#d5d7dd; --bar-ink:#16181d;
+  --ink:#e6e6e6; --text:#e0e0e0; --muted:#878a92; --dim:#5d6470; --prompt:#4f5a53;
+  --green:#22c358; --amber:#e5b84b; --red:#ff6b5e;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+  --menu-h:44px; --task-h:32px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
-body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-top:var(--safe-t);padding-bottom:var(--safe-b)}
+body{background:var(--desk);color:var(--text);font:400 14px/1.6 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  padding:calc(var(--menu-h) + var(--safe-t)) 0 calc(var(--task-h) + var(--safe-b))}
 a{color:inherit;text-decoration:none}
-::selection{background:var(--accent);color:#0a0a0a}
-.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
-.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
-.wrap{max-width:860px;margin:0 auto;padding-inline:var(--pad)}
-h1{font-family:Sora,sans-serif;font-weight:200;font-size:clamp(30px,6.4vw,58px);line-height:1.08;letter-spacing:-.025em;color:#C9D3E4;margin-top:16px}
-h1 em{font-style:normal;color:var(--ink)}
-.lede{color:var(--muted);font-size:clamp(15px,1.9vw,17px);margin-top:18px;max-width:56ch}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+::selection{background:var(--bar);color:var(--bar-ink)}
+.mono{font-family:var(--mono)}
+.lucide{width:18px;height:18px;stroke-width:1.75}
 
-header{display:flex;align-items:center;justify-content:space-between;padding:18px var(--pad)}
-.wordmark{font-family:Sora,sans-serif;font-weight:600;font-size:13px;letter-spacing:.34em;color:var(--ink)}
-.ver{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;color:var(--dim)}
+/* ---------- top menu bar ---------- */
+.menubar{position:fixed;inset:var(--safe-t) 0 auto 0;height:var(--menu-h);z-index:50;display:flex;align-items:center;gap:6px;
+  background:var(--deep);border-bottom:1px solid var(--edge);padding:0 10px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:15px;color:var(--ink);padding:0 12px 0 4px;border-right:1px solid var(--edge);height:100%}
+.brand .lucide{width:17px;height:17px}
+.menus{display:flex;height:100%}
+.menu{position:relative;height:100%}
+.menu>button{height:100%;padding:0 14px;font-weight:500;color:var(--ink)}
+.menu>button:hover,.menu.open>button{background:var(--raise)}
+.drop{position:absolute;top:100%;left:0;min-width:230px;background:var(--win);border:1px solid var(--edge);box-shadow:0 10px 30px rgba(0,0,0,.45);display:none;padding:4px 0;z-index:60}
+.menu.open .drop{display:block}
+.drop button,.drop a{display:flex;justify-content:space-between;gap:18px;width:100%;text-align:left;padding:8px 14px;color:var(--text);font-size:13px}
+.drop button:hover,.drop a:hover{background:var(--bar);color:var(--bar-ink)}
+.drop .k{color:var(--muted);font-family:var(--mono);font-size:11px}
+.drop button:hover .k,.drop a:hover .k{color:#454852}
+.drop hr{border:0;border-top:1px solid var(--edge);margin:4px 0}
+.mb-right{margin-left:auto;display:flex;align-items:center;gap:6px;height:100%}
+.net{display:flex;align-items:center;gap:10px;height:30px;padding:0 10px;border:1px solid var(--edge);background:var(--win);font-weight:700;font-size:13px;color:var(--ink)}
+.net .lucide{width:14px;height:14px;color:var(--muted)}
+.mb-icon{display:grid;place-items:center;width:36px;height:36px;color:var(--ink)}
+.mb-icon:hover{background:var(--raise)}
+.mb-btn{height:100%;padding:0 14px;font-weight:700;border-left:1px solid var(--edge);color:var(--ink);display:flex;align-items:center}
+.mb-btn:hover{background:var(--raise)}
+.mb-burger{display:none}
 
-.hero{padding:clamp(40px,8vw,96px) 0 clamp(28px,5vw,48px)}
-form{margin-top:28px;display:flex;gap:10px;flex-wrap:wrap}
-input{flex:1 1 320px;min-width:0;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:500 15px/1 'JetBrains Mono',monospace;padding:16px 18px;outline:none;transition:border-color .2s}
-input::placeholder{color:var(--dim);font-weight:400}
-input:focus{border-color:rgba(123,92,255,.6)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:16px 26px;border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;transition:.22s;border:1px solid var(--accent);background:var(--accent);color:#0A0A0F;font-weight:500;cursor:pointer;flex:0 0 auto}
-.btn:hover{filter:brightness(1.1);box-shadow:0 8px 34px rgba(123,92,255,.22)}
-.btn[disabled]{opacity:.55;cursor:wait;box-shadow:none}
-.hint{margin-top:12px;font-size:13px;color:var(--dim)}
-.hint button{background:none;border:0;color:var(--muted);font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+/* ---------- desktop icons ---------- */
+.icons{position:fixed;top:calc(var(--menu-h) + var(--safe-t) + 16px);left:14px;display:flex;flex-direction:column;gap:18px;z-index:5;width:96px}
+.ico{display:flex;flex-direction:column;align-items:center;gap:7px;padding:4px;color:var(--ink);font-weight:500;font-size:12.5px;text-align:center}
+.ico .tile{width:46px;height:46px;display:grid;place-items:center;background:var(--win);border:1px solid var(--edge);box-shadow:inset 1px 1px 0 rgba(255,255,255,.06),2px 2px 0 rgba(0,0,0,.35)}
+.ico .tile .lucide{width:22px;height:22px}
+.ico span{padding:1px 6px}
+.ico:hover span,.ico:focus-visible span{background:var(--bar);color:var(--bar-ink)}
+
+/* ---------- windows ---------- */
+.desk{padding:28px 24px 40px 132px;display:flex;flex-direction:column;align-items:center;gap:26px}
+.win{scroll-margin-top:calc(var(--menu-h) + var(--safe-t) + 14px);width:100%;max-width:1000px;background:var(--win);border:1px solid #4a4d55;box-shadow:0 18px 50px rgba(0,0,0,.5),inset 1px 1px 0 rgba(255,255,255,.04)}
+.win.max{max-width:none}
+.win.hidden{display:none}
+.titlebar{display:flex;align-items:center;gap:10px;height:30px;background:var(--bar);color:var(--bar-ink);padding:0 4px 0 10px;user-select:none}
+.titlebar .ti{display:grid;place-items:center;width:16px;height:16px;background:var(--bar-ink);color:var(--bar)}
+.titlebar .ti .lucide{width:11px;height:11px;stroke-width:2.5}
+.titlebar b{font-weight:700;font-size:13px;letter-spacing:.02em;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wbtns{display:flex;gap:4px}
+.wbtns button{width:22px;height:20px;display:grid;place-items:center;background:var(--bar-ink);color:var(--bar)}
+.wbtns button .lucide{width:12px;height:12px;stroke-width:2.5}
+.wbtns button:hover{background:#3a3d45}
+.wmenu{display:flex;gap:2px;padding:0 6px;height:30px;align-items:center;border-bottom:1px solid var(--edge);font-size:13px;color:var(--muted)}
+.wmenu button{padding:3px 10px;color:var(--muted)}
+.wmenu button:hover{background:var(--raise);color:var(--ink)}
+.win.min .wbody,.win.min .wmenu{display:none}
+.wbody{padding:clamp(18px,3vw,28px)}
+
+/* main window: hero + log */
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(18px,3vw,32px);align-items:start}
+h1{font-weight:900;font-size:clamp(36px,5.6vw,58px);line-height:.98;letter-spacing:-.045em;text-transform:uppercase;color:#d9dadd}
+.lede{color:var(--muted);font-weight:500;font-size:15px;line-height:1.6;margin-top:18px;max-width:46ch}
+.acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 22px;font-weight:700;font-size:13px;letter-spacing:.02em;border:1px solid var(--edge);background:var(--deep);color:var(--ink);box-shadow:inset 1px 1px 0 rgba(255,255,255,.05),2px 2px 0 rgba(0,0,0,.35)}
+.btn:hover{background:var(--raise)}
+.btn.primary{background:var(--bar);color:var(--bar-ink);border-color:#f0f1f4}
+.btn.primary:hover{background:#e6e8ee}
+.btn[disabled]{opacity:.6;cursor:wait}
+.field-l{margin-top:26px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+form.field{display:flex;gap:10px;margin-top:8px}
+form.field input{flex:1;min-width:0;height:44px;background:var(--deep);border:1px solid var(--edge);color:var(--ink);font:500 13px var(--mono);padding:0 12px;outline:none;border-radius:0}
+form.field input::placeholder{color:var(--dim)}
+form.field input:focus{border-color:#7b7f89}
+.hint{margin-top:10px;font-size:12.5px;color:var(--dim)}
+.hint button{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
 .hint button:hover{color:var(--ink)}
+.err{margin-top:10px;color:var(--red);font:500 12.5px var(--mono);min-height:1em}
 
-/* result card */
-.card{margin-top:clamp(28px,5vw,44px);border:1px solid var(--line-soft);border-radius:var(--r);overflow:hidden;background:var(--line-soft);display:grid;gap:1px}
-.card>*{background:var(--bg)}
-.head{padding:clamp(20px,4vw,30px) clamp(18px,3vw,28px);display:grid;gap:14px}
-.repo-line{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline}
-.repo-line a{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--ink)}
-.repo-line a:hover{color:var(--accent)}
-.repo-line span{font-size:13px;color:var(--dim)}
-.repo-line .chip{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(123,92,255,.45);border-radius:6px;padding:3px 8px}
-.desc{color:var(--muted);font-size:14px;max-width:70ch}
-.grade{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px;margin-top:4px}
-.grade b{font-family:Sora,sans-serif;font-weight:300;font-size:clamp(26px,5vw,38px);letter-spacing:-.02em;line-height:1.1}
-.grade.g2 b{color:var(--accent)}
-.grade.g1 b{color:var(--ink)}
-.grade.g0 b{color:#C9D3E4}
-.grade small{color:var(--muted);font-size:14px}
-.stats{display:flex;flex-wrap:wrap;gap:6px 22px;font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.08em;color:var(--dim);text-transform:uppercase}
-.stats b{color:var(--muted);font-weight:500}
+.panel{border:1px solid var(--edge);background:var(--term)}
+.panel .ph{background:var(--bar);color:var(--bar-ink);font:700 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;display:flex;justify-content:space-between;gap:10px}
+.panel .ph span:last-child{font-weight:500}
+.log{font:400 12.5px/1.75 var(--mono);color:#cfd3cf;padding:12px 12px 14px;height:380px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.log .l::before{content:"> ";color:var(--prompt)}
+.log .ok{color:var(--green)} .log .note{color:var(--amber)} .log .flag{color:var(--red)} .log .muted{color:var(--muted)}
 
-.check{padding:clamp(18px,3.5vw,26px) clamp(18px,3vw,28px);display:grid;grid-template-columns:120px 1fr;gap:6px 24px}
-@media(max-width:560px){.check{grid-template-columns:1fr;gap:6px}}
-.check .k{display:flex;flex-direction:column;gap:6px}
-.check .name{font-family:Sora,sans-serif;font-weight:400;font-size:15px;color:var(--ink)}
-.check .lvl{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
-.check.l2 .lvl{color:var(--accent)}
-.check.l1 .lvl{color:var(--muted)}
-.check .hl{font-size:15px;color:var(--ink);margin-bottom:6px}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:clamp(20px,3vw,28px)}
+.tile-w{background:var(--deep);border:1px solid var(--edge);padding:16px 16px 18px}
+.tile-w h3{font-weight:700;font-size:14px;color:var(--ink);display:flex;align-items:center;gap:8px}
+.tile-w h3 .lucide{width:16px;height:16px;color:var(--muted)}
+.tile-w p{color:var(--muted);font-size:13px;margin-top:6px}
+.tile-w .big{font:700 22px var(--mono);color:var(--ink);margin-top:8px;letter-spacing:-.02em}
+.tile-w .link{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+
+/* report window */
+.rep-head{display:grid;gap:10px}
+.rep-line{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;font-size:13px;color:var(--muted)}
+.rep-line a{font:700 14px var(--mono);color:var(--ink)}
+.rep-line a:hover{text-decoration:underline}
+.rep-line .syn{font:700 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--amber)}
+.rep-desc{color:var(--muted);font-size:13.5px;max-width:80ch}
+.grade{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;margin-top:6px}
+.grade b{font-weight:900;font-size:clamp(34px,6vw,54px);letter-spacing:-.045em;line-height:1;text-transform:uppercase}
+.grade.g2 b{color:var(--red)} .grade.g1 b{color:var(--amber)} .grade.g0 b{color:var(--green)}
+.grade small{color:var(--muted);font-size:14px;font-weight:500}
+.stats{display:flex;flex-wrap:wrap;gap:4px 20px;font:500 11.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.stats b{color:var(--ink);font-weight:700}
+.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:20px}
+.check{border:1px solid var(--edge);background:var(--deep)}
+.check .ch{display:flex;justify-content:space-between;align-items:center;background:var(--raise);padding:6px 10px;font:700 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.check .lvl{font-weight:700}
+.check.l2 .ch{background:var(--bar);color:var(--bar-ink)} .check.l2 .lvl{color:#c4271b}
+.check.l1 .lvl{color:var(--amber)} .check.l0 .lvl{color:var(--green)}
+.check .cb{padding:12px 12px 14px}
+.check .hl{font-weight:700;font-size:14px;color:var(--ink);margin-bottom:6px}
 .check ul{list-style:none;display:grid;gap:6px}
-.check li{color:var(--muted);font-size:14px;padding-left:16px;position:relative}
-.check li::before{content:"—";position:absolute;left:0;color:var(--dim)}
-.card .foot{padding:16px clamp(18px,3vw,28px);font-size:12.5px;color:var(--dim);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
-.card .foot button{background:none;border:0;color:var(--muted);font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
-.card .foot .acts{display:flex;gap:18px}
+.check li{color:var(--muted);font-size:13px;padding-left:16px;position:relative}
+.check li::before{content:">";position:absolute;left:0;color:var(--prompt);font-family:var(--mono)}
+.copies{margin-top:14px;border:1px solid var(--edge);background:var(--deep)}
+.copies .ch{background:var(--raise);padding:6px 10px;font:700 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.copies .cb{padding:12px}
+.copies .sum{color:var(--muted);font-size:13px}
+.copies table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+.copies th{text-align:left;font:500 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);padding:6px 10px 6px 0;border-bottom:1px solid var(--edge)}
+.copies td{padding:7px 10px 7px 0;border-bottom:1px solid #22252b;color:var(--muted);vertical-align:top}
+.copies td.n{color:var(--ink)} .copies td.n a:hover{text-decoration:underline}
+.copies .ca{font:400 11px var(--mono);color:var(--dim);display:block}
+.copies .num{text-align:right;font-family:var(--mono);white-space:nowrap}
+.copies .note{font-size:12px;color:var(--dim);margin-top:8px}
+.rep-foot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid var(--edge);font-size:12.5px;color:var(--dim)}
+.rep-foot .acts{margin:0}
 
-/* tokens carrying the name */
-.copies{padding:clamp(18px,3.5vw,26px) clamp(18px,3vw,28px);display:grid;gap:10px}
-.copies .t{font-family:Sora,sans-serif;font-weight:400;font-size:15px;color:var(--ink)}
-.copies .sum{color:var(--muted);font-size:14px}
-.copies table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
-.copies th{text-align:left;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);font-weight:500;padding:8px 10px 8px 0;border-bottom:1px solid var(--line-soft)}
-.copies td{padding:9px 10px 9px 0;border-bottom:1px solid var(--line-soft);color:var(--muted);vertical-align:top}
-.copies td.n{color:var(--ink)}
-.copies td.n a:hover{color:var(--accent)}
-.copies td .ca{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--dim);display:block}
-.copies .num{text-align:right;font-family:'JetBrains Mono',monospace;white-space:nowrap}
-.copies .note{font-size:12.5px;color:var(--dim)}
-@media(max-width:560px){.copies .hide-s{display:none}}
-
-.status{margin-top:28px;font-family:'JetBrains Mono',monospace;font-size:12.5px;letter-spacing:.06em;color:var(--muted);min-height:1.5em}
-.status.err{color:#e9a0a0}
-
-section.how{padding:clamp(56px,9vw,100px) 0}
-.grid{display:grid;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:var(--r);overflow:hidden;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:28px}
-.cell{background:var(--bg);padding:clamp(20px,3.6vw,30px) clamp(16px,3vw,24px)}
-.cell .n{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--accent)}
-.cell h3{font-family:Sora,sans-serif;font-weight:400;font-size:16px;margin:10px 0 6px;color:var(--ink)}
-.cell p{color:var(--muted);font-size:13.5px}
-
-section.recent{padding:0 0 clamp(56px,9vw,100px)}
-section.agents{padding:0 0 clamp(56px,9vw,100px)}
-.list{margin-top:20px;border:1px solid var(--line-soft);border-radius:var(--r);overflow:hidden;display:grid;gap:1px;background:var(--line-soft)}
-.row{background:var(--bg);display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;padding:12px clamp(14px,3vw,22px);font-size:13.5px;cursor:pointer}
-.row:hover{background:rgba(255,255,255,.022)}
-.row .r{font-family:'JetBrains Mono',monospace;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.row .g{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
-.row .g.g2{color:var(--accent)}
+/* recent + docs windows */
+.rows{display:grid}
+.row{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--edge);font-size:13px;width:100%;text-align:left}
+.row:hover{background:var(--raise)}
+.row .r{font:500 13px var(--mono);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .g{font:700 11px var(--mono);letter-spacing:.12em}
+.row .g.g2{color:var(--red)} .row .g.g1{color:var(--amber)} .row .g.g0{color:var(--green)}
 .row .d{color:var(--dim);font-size:12px}
-footer{padding:28px var(--pad) 40px;border-top:1px solid var(--line-soft);color:var(--dim);font-size:12.5px;display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
-.hidden{display:none}
-@media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+.docs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.doc{background:var(--deep);border:1px solid var(--edge);padding:14px 16px}
+.doc.wide{grid-column:1/-1}
+.doc h3{font:700 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin-bottom:6px}
+.doc p{color:var(--muted);font-size:13px}
+.doc p+p{margin-top:8px}
+.doc code,.code{font:500 12px var(--mono);color:#cfd3cf;background:var(--term);border:1px solid var(--edge);padding:1px 5px}
+.code{display:block;white-space:pre-wrap;word-break:break-all;padding:10px;margin-top:8px;line-height:1.6}
+
+/* ---------- taskbar ---------- */
+.taskbar{position:fixed;inset:auto 0 0 0;height:calc(var(--task-h) + var(--safe-b));padding-bottom:var(--safe-b);background:var(--deep);border-top:1px solid var(--edge);display:flex;align-items:center;font:500 11.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);z-index:50}
+.taskbar>span{padding:0 12px;height:100%;display:flex;align-items:center;border-left:1px solid var(--edge);white-space:nowrap}
+.taskbar>span:first-child{border-left:0;margin-right:auto;color:var(--ink);overflow:hidden;text-overflow:ellipsis;min-width:0}
+.taskbar .ok{color:var(--green)} .taskbar .flag{color:var(--red)} .taskbar .note{color:var(--amber)}
+
+/* ---------- phone ---------- */
+@media (max-width:900px){
+  .desk{padding:16px 12px 32px}
+  .icons{position:static;flex-direction:row;width:auto;gap:4px;overflow-x:auto;padding:12px 12px 0;-webkit-overflow-scrolling:touch}
+  .ico{min-width:76px;font-size:12px}
+  .hero{grid-template-columns:1fr}
+  .log{height:260px}
+  .tiles,.checks,.docs{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .menus,.net,.mb-btn.api{display:none}
+  .mb-burger{display:grid}
+  .menubar.open .menus{display:flex;flex-direction:column;position:absolute;top:var(--menu-h);left:0;right:0;height:auto;background:var(--deep);border-bottom:1px solid var(--edge)}
+  .menubar.open .menu>button{height:44px;width:100%;text-align:left}
+  .menubar.open .drop{position:static;box-shadow:none;border:0;border-top:1px solid var(--edge)}
+  .wmenu{display:none}
+  .titlebar{height:40px}
+  .wbtns button{width:34px;height:30px}
+  .taskbar .t-cache,.taskbar .t-ver,.taskbar .t-pay{display:none}
+  .wbody{padding:16px}
+  .row{grid-template-columns:1fr auto}
+  .row .d{display:none}
+  .copies .hide-s{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
-<header>
-  <a class="wordmark" href="/">REPO X-RAY</a>
-  <span class="ver mono" id="ver">v0.3.1</span>
+
+<!-- top menu bar -->
+<header class="menubar" id="menubar">
+  <a class="brand" href="/"><i data-lucide="scan-line"></i>RepoXray.exe</a>
+  <nav class="menus" id="menus">
+    <div class="menu"><button type="button">File</button>
+      <div class="drop">
+        <button type="button" data-act="new">New check <span class="k">Ctrl+N</span></button>
+        <button type="button" data-act="share">Copy share link</button>
+        <hr><button type="button" data-act="demo">Open the synthetic demo</button>
+      </div></div>
+    <div class="menu"><button type="button">Edit</button>
+      <div class="drop">
+        <button type="button" data-act="clear">Clear the input</button>
+        <button type="button" data-act="copylog">Copy the log</button>
+      </div></div>
+    <div class="menu"><button type="button">View</button>
+      <div class="drop">
+        <button type="button" data-act="recent">Recent checks</button>
+        <button type="button" data-act="docs">How the checks work</button>
+        <button type="button" data-act="max">Maximise the window</button>
+      </div></div>
+    <div class="menu"><button type="button">Tools</button>
+      <div class="drop">
+        <button type="button" data-act="recheck">Re-check now (skip the cache)</button>
+        <button type="button" data-act="api">Agent API (x402)</button>
+      </div></div>
+    <div class="menu"><button type="button">Help</button>
+      <div class="drop">
+        <a href="https://github.com/devhorfin/repo-xray#readme" target="_blank" rel="noopener">README on GitHub <span class="k">↗</span></a>
+        <button type="button" data-act="docs">Grades and limits</button>
+      </div></div>
+  </nav>
+  <div class="mb-right">
+    <span class="net" title="Where the paid route takes payment"><span id="netname">Solana</span><i data-lucide="chevron-down"></i></span>
+    <a class="mb-icon" href="https://github.com/devhorfin/repo-xray" target="_blank" rel="noopener" aria-label="Source on GitHub"><i data-lucide="github"></i></a>
+    <button class="mb-btn api" type="button" data-act="api">API</button>
+    <button class="mb-icon mb-burger" type="button" id="burger" aria-label="Menu"><i data-lucide="menu"></i></button>
+  </div>
 </header>
 
-<main class="wrap">
-  <div class="hero">
-    <div class="eyebrow">Six checks on a repository</div>
-    <h1>Everyone checks the stars. <em>Nobody checks the clock.</em></h1>
-    <p class="lede">Paste a GitHub link. Ten seconds later you get the clock, the rhythm, the names, the masks, the crowd and what the README claims, each with the line of evidence it rests on. No verdict without a receipt.</p>
-    <form id="f" autocomplete="off">
-      <input id="repo" type="text" inputmode="url" placeholder="https://github.com/owner/repo" aria-label="GitHub repository link" required>
-      <button class="btn" id="go" type="submit">Check it</button>
-    </form>
-    <p class="hint">Try <button type="button" data-try="sindresorhus/got">sindresorhus/got</button> or <button type="button" data-try="expressjs/express">expressjs/express</button>. Public repositories only; nothing is written to GitHub.</p>
-    <div class="status" id="status"></div>
-    <div id="out"></div>
-  </div>
+<!-- desktop icons -->
+<nav class="icons" aria-label="Desktop">
+  <button class="ico" type="button" data-act="new"><span class="tile"><i data-lucide="scan-search"></i></span><span>New check</span></button>
+  <button class="ico" type="button" data-act="recent"><span class="tile"><i data-lucide="history"></i></span><span>Recent</span></button>
+  <button class="ico" type="button" data-act="demo"><span class="tile"><i data-lucide="flask-conical"></i></span><span>Demo</span></button>
+  <button class="ico" type="button" data-act="api"><span class="tile"><i data-lucide="bot"></i></span><span>Agents</span></button>
+  <button class="ico" type="button" data-act="docs"><span class="tile"><i data-lucide="file-text"></i></span><span>Docs</span></button>
+</nav>
 
-  <section class="how">
-    <div class="eyebrow">01 — What each check reads</div>
-    <div class="grid">
-      <div class="cell"><div class="n">1</div><h3>Clock</h3><p>The first commit's date against the day the repository and the account were created, and whether the author and committer clocks agree.</p></div>
-      <div class="cell"><div class="n">2</div><h3>Metronome</h3><p>Commits per year and the gap between commits. Real work is lumpy. A fixed beat for years is a schedule.</p></div>
-      <div class="cell"><div class="n">3</div><h3>Names</h3><p>Every author's name against the address they commit with. A name that shares nothing with its email is a costume more often than a quirk.</p></div>
-      <div class="cell"><div class="n">4</div><h3>Masks</h3><p>GitHub's own no-reply addresses carry the user's numeric id. If the owner's id commits under another name, that's one person in several coats.</p></div>
-      <div class="cell"><div class="n">5</div><h3>Crowd</h3><p>Forks, stars and pull requests that arrive within minutes of each other from name-plus-digits accounts.</p></div>
-      <div class="cell"><div class="n">6</div><h3>Claims</h3><p>What the README promises against what the code holds: money that "moves" with no transfer in the program, a program id that is Anchor's placeholder or sits on no network, "implemented" next to "not implemented", an audit nobody can find, a partner the code never names.</p></div>
-      <div class="cell"><div class="n">=</div><h3>Grade</h3><p>CLEAN, LOOK CLOSER or DRESSED UP. Two flags, or one flag with two notes, is DRESSED UP. An old project moved from elsewhere can earn a note; it takes several checks together to earn a flag. Under the checks: the tokens on DexScreener that carry the repository's name.</p></div>
+<main class="desk" id="desk">
+
+  <!-- main program window -->
+  <section class="win" id="w-main" aria-label="REPO_XRAY.EXE">
+    <div class="titlebar"><span class="ti"><i data-lucide="scan-line"></i></span><b>REPO_XRAY.EXE</b>
+      <div class="wbtns"><button type="button" data-win="min" aria-label="Minimise"><i data-lucide="minus"></i></button><button type="button" data-win="max" aria-label="Maximise"><i data-lucide="square"></i></button><button type="button" data-win="close" aria-label="Close"><i data-lucide="x"></i></button></div></div>
+    <div class="wmenu"><button type="button" data-act="new">File</button><button type="button" data-act="recheck">Options</button><button type="button" data-act="recent">View</button><button type="button" data-act="docs">Help</button></div>
+    <div class="wbody">
+      <div class="hero">
+        <div>
+          <h1>Six checks on any GitHub repo</h1>
+          <p class="lede">Everyone checks the stars. Nobody checks the clock. Paste a link and get the clock, the rhythm, the names, the masks, the crowd and what the README claims, each with the line of evidence it rests on.</p>
+          <div class="acts">
+            <button class="btn primary" type="submit" form="f" id="go">RUN_XRAY()</button>
+            <button class="btn" type="button" data-act="demo">OPEN_DEMO</button>
+          </div>
+          <div class="field-l">Repository</div>
+          <form class="field" id="f" autocomplete="off">
+            <input id="repo" type="text" inputmode="url" placeholder="github.com/owner/repo" aria-label="GitHub repository link" required>
+            <button class="btn" type="button" id="paste">Paste</button>
+          </form>
+          <p class="hint">Try <button type="button" data-try="sindresorhus/got">sindresorhus/got</button> or <button type="button" data-try="expressjs/express">expressjs/express</button>. Public repositories only; nothing is written to GitHub.</p>
+          <div class="err" id="err"></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><span>X-ray log</span><span id="logstate">idle</span></div>
+          <div class="log" id="log" aria-live="polite"></div>
+        </div>
+      </div>
+      <div class="tiles">
+        <div class="tile-w"><h3><i data-lucide="list-checks"></i>Six checks</h3><p>Clock, metronome, names and masks read the commit history. Crowd reads forks and pull requests. Claims reads the README against the code.</p></div>
+        <div class="tile-w"><h3><i data-lucide="coins"></i>Tokens carrying the name</h3><p>Every DexScreener token named like the repo, with market cap and age. Context, never a score: names collide.</p></div>
+        <div class="tile-w"><h3><i data-lucide="bot"></i>For agents</h3><div class="big" id="price">$0.01</div><p>per call in USDC over x402, no key, no account. <button type="button" class="link" data-act="api">How it pays</button></p></div>
+      </div>
     </div>
   </section>
 
-  <section class="agents">
-    <div class="eyebrow">02 — For agents</div>
-    <div class="grid">
-      <div class="cell"><div class="n">$0.01</div><h3>Per call, in USDC, over x402</h3><p>No key, no account. Your agent asks, gets a 402 with the price, pays, and the card comes back as JSON. On Solana the payment is final in about 150 ms since Alpenglow, so the answer is not held up by the money.</p></div>
-      <div class="cell"><div class="n">GET</div><h3 class="mono" style="font-size:13px;letter-spacing:0">/api/v1/xray?repo=owner/name</h3><p>Same six checks, same evidence lines, same copycat-token table. Pays over x402 "exact" with USDC: <span id="paynet">devnet while in test</span>. Any x402 client works; the <span class="mono">pay-test.mjs</span> in the repo is one.</p></div>
-      <div class="cell"><div class="n">FREE</div><h3>This page</h3><p>The free route is for people: ten checks an hour per address. Results are cached for an hour and listed below.</p></div>
+  <!-- report window (filled by a check) -->
+  <section class="win hidden" id="w-report" aria-label="Report">
+    <div class="titlebar"><span class="ti"><i data-lucide="file-search"></i></span><b id="rep-title">REPORT.XRY</b>
+      <div class="wbtns"><button type="button" data-win="min" aria-label="Minimise"><i data-lucide="minus"></i></button><button type="button" data-win="max" aria-label="Maximise"><i data-lucide="square"></i></button><button type="button" data-win="close" aria-label="Close"><i data-lucide="x"></i></button></div></div>
+    <div class="wbody card" id="out"></div>
+  </section>
+
+  <!-- recent -->
+  <section class="win" id="w-recent" aria-label="Recent checks">
+    <div class="titlebar"><span class="ti"><i data-lucide="history"></i></span><b>RECENT.LOG</b>
+      <div class="wbtns"><button type="button" data-win="min" aria-label="Minimise"><i data-lucide="minus"></i></button><button type="button" data-win="max" aria-label="Maximise"><i data-lucide="square"></i></button><button type="button" data-win="close" aria-label="Close"><i data-lucide="x"></i></button></div></div>
+    <div class="wbody"><div class="rows" id="recent"></div></div>
+  </section>
+
+  <!-- docs -->
+  <section class="win how" id="w-docs" aria-label="How the checks work">
+    <div class="titlebar"><span class="ti"><i data-lucide="file-text"></i></span><b>CHECKS.TXT</b>
+      <div class="wbtns"><button type="button" data-win="min" aria-label="Minimise"><i data-lucide="minus"></i></button><button type="button" data-win="max" aria-label="Maximise"><i data-lucide="square"></i></button><button type="button" data-win="close" aria-label="Close"><i data-lucide="x"></i></button></div></div>
+    <div class="wbody">
+      <div class="docs">
+        <div class="doc"><h3>1 · Clock</h3><p>The first commit's date against the day the repository and the account were created, and whether the author and committer clocks agree.</p></div>
+        <div class="doc"><h3>2 · Metronome</h3><p>Commits per year and the gap between commits. Real work is lumpy. A fixed beat for years is a schedule.</p></div>
+        <div class="doc"><h3>3 · Names</h3><p>Every author's name against the address they commit with. An address that reads like someone else's full name is a costume more often than a quirk.</p></div>
+        <div class="doc"><h3>4 · Masks</h3><p>GitHub's no-reply addresses carry the user's numeric id. If the owner's id commits under another name, that's one person in several coats.</p></div>
+        <div class="doc"><h3>5 · Crowd</h3><p>Forks, stars and pull requests that arrive within hours of each other from name-plus-digits accounts.</p></div>
+        <div class="doc"><h3>6 · Claims</h3><p>The README against the code: money that "moves" with no transfer, Anchor's placeholder program id, "implemented" next to "not implemented", an audit nobody can find.</p></div>
+        <div class="doc wide"><h3>Grade</h3><p>Two flags, or one flag and two notes, is DRESSED UP. One flag or two notes is LOOK CLOSER. Otherwise CLEAN, which is not proof of anything else.</p><p>An old project moved from elsewhere can earn a note; it takes several checks together to earn a flag. The checks read public data and can't tell who typed a commit. Unknown is not fake.</p></div>
+      </div>
     </div>
   </section>
 
-  <section class="recent">
-    <div class="eyebrow">03 — Recently checked</div>
-    <div class="list" id="recent"></div>
+  <!-- agents -->
+  <section class="win agents" id="w-api" aria-label="Agent API">
+    <div class="titlebar"><span class="ti"><i data-lucide="bot"></i></span><b>AGENTS.TXT</b>
+      <div class="wbtns"><button type="button" data-win="min" aria-label="Minimise"><i data-lucide="minus"></i></button><button type="button" data-win="max" aria-label="Maximise"><i data-lucide="square"></i></button><button type="button" data-win="close" aria-label="Close"><i data-lucide="x"></i></button></div></div>
+    <div class="wbody">
+      <div class="docs">
+        <div class="doc"><h3>Pay per call</h3><p>An agent asks, gets a <code>402</code> with the price, pays in USDC over x402, and the same card comes back as JSON with a receipt. No key, no account. On Solana the payment is final in about 150 ms since Alpenglow, so the money doesn't hold up the answer.</p></div>
+        <div class="doc"><h3>Route</h3><p id="apinet">Paid route: checking…</p><span class="code">GET /api/v1/xray?repo=owner/name</span></div>
+        <div class="doc wide"><h3>Try it</h3><span class="code">curl -i "<span class="origin"></span>/api/v1/xray?repo=sindresorhus/got"     # 402 + PAYMENT-REQUIRED
+node pay-test.mjs sindresorhus/got --key payer-keypair.json        # pays, prints the receipt</span>
+          <p style="margin-top:8px">The free route behind this page allows ten checks an hour per address. Results are cached for an hour.</p></div>
+      </div>
+    </div>
   </section>
 </main>
 
-<footer>
-  <span>Reads public GitHub data only. Unknown is not fake.</span>
-  <span class="mono" id="ver2">repo-xray v0.3.1</span>
+<!-- taskbar: every number here comes from the server or the last check -->
+<footer class="taskbar">
+  <span id="t-status">Starting</span>
+  <span id="t-gh">GitHub API: …</span>
+  <span class="t-pay" id="t-pay">Paid route: …</span>
+  <span class="t-cache" id="t-cache">Cache: …</span>
+  <span class="t-ver" id="t-ver">v…</span>
 </footer>
 
 <script>
 const $ = s => document.querySelector(s);
-const f = $('#f'), input = $('#repo'), go = $('#go'), status = $('#status'), out = $('#out');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const LVL = ['clean', 'note', 'flag'];
-const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const input = $('#repo'), go = $('#go'), err = $('#err'), out = $('#out'), log = $('#log');
+let last = null;
 const ago = iso => { const m = Math.round((Date.now() - Date.parse(iso)) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' d ago'; };
+const money = n => n >= 1e6 ? '$' + (n / 1e6).toFixed(2) + 'M' : n >= 1e3 ? '$' + Math.round(n / 1e3) + 'K' : '$' + Math.round(n);
+const age = iso => { if (!iso) return '?'; const h = (Date.now() - Date.parse(iso)) / 3600000; return h < 1 ? Math.round(h * 60) + ' min' : h < 48 ? Math.round(h) + ' h' : Math.round(h / 24) + ' d'; };
+const icons = () => { try { lucide.createIcons(); } catch {} };
 
+// ---------- log: real lines only ----------
+function line(text, cls = '') { const d = document.createElement('div'); d.className = 'l ' + cls; d.textContent = text; log.appendChild(d); log.scrollTop = log.scrollHeight; }
+function status(text, cls = '') { const s = $('#t-status'); s.textContent = text; s.className = cls; }
+
+async function boot() {
+  try {
+    const h = await (await fetch('/api/health')).json();
+    $('#t-ver').textContent = 'v' + h.version;
+    line(`REPO_XRAY v${h.version}`, 'muted');
+    if (h.github) {
+      line(`GitHub API: ${h.token ? 'token loaded' : 'no token'}, ${h.github.remaining.toLocaleString()} of ${h.github.limit.toLocaleString()} calls left this hour`);
+      $('#t-gh').textContent = `GitHub API: ${h.github.remaining.toLocaleString()}/${h.github.limit.toLocaleString()}`;
+    } else { line('GitHub API: limit unknown', 'note'); $('#t-gh').textContent = 'GitHub API: unknown'; }
+    if (h.paid) {
+      const net = h.paid.network === 'mainnet' ? 'Solana mainnet' : 'Solana devnet';
+      line(`Paid route: GET /api/v1/xray · ${h.paid.price} USDC · ${net}`);
+      $('#netname').textContent = net; $('#t-pay').textContent = `Paid route: ${h.paid.network} ${h.paid.price}`;
+      $('#price').textContent = h.paid.price;
+      $('#apinet').textContent = `Paid route: on, ${h.paid.price} USDC per call on ${net}${h.paid.network === 'mainnet' ? '' : ' (test USDC while in test)'}.`;
+    } else { line('Paid route: off (no payTo configured)', 'note'); $('#netname').textContent = 'Paid route off'; $('#t-pay').textContent = 'Paid route: off'; $('#apinet').textContent = 'Paid route: off on this server.'; }
+    line(`Cache: ${h.cached} ${h.cached === 1 ? 'repository' : 'repositories'} checked in the last hour`);
+    $('#t-cache').textContent = `Cache: ${h.cached}`;
+    line('READY. Paste a GitHub link.', 'ok'); $('#logstate').textContent = 'ready'; status('System ready', 'ok');
+  } catch { line('Server unreachable.', 'flag'); status('Server unreachable', 'flag'); }
+}
+
+// ---------- report ----------
 function render(r) {
+  last = r;
   const g = r.grade === 'DRESSED UP' ? 2 : r.grade === 'LOOK CLOSER' ? 1 : 0;
   const st = r.stats || {};
+  $('#rep-title').textContent = `REPORT — ${r.repo.full_name}`;
   out.innerHTML = `
-  <div class="card">
-    <div class="head">
-      <div class="repo-line">${r.synthetic ? '<span class="chip">Synthetic demo</span>' : ''}<a href="${esc(r.repo.html_url)}" target="_blank" rel="noopener">${esc(r.repo.full_name)}</a><span>${esc(r.repo.language || '')}</span><span>created ${esc(r.repo.created_at.slice(0,10))}</span></div>
-      ${r.repo.description ? `<div class="desc">${esc(r.repo.description)}</div>` : ''}
+    <div class="rep-head">
+      <div class="rep-line">${r.synthetic ? '<span class="syn">Synthetic demo</span>' : ''}<a href="${esc(r.repo.html_url)}" target="_blank" rel="noopener">${esc(r.repo.full_name)}</a><span>${esc(r.repo.language || '')}</span><span>created ${esc(r.repo.created_at.slice(0, 10))}</span></div>
+      ${r.repo.description ? `<div class="rep-desc">${esc(r.repo.description)}</div>` : ''}
       <div class="grade g${g}"><b>${esc(r.grade)}</b><small>${esc(r.line)}</small></div>
       <div class="stats"><span><b>${st.commits}</b> commits</span><span><b>${st.authors}</b> authors</span><span><b>${r.repo.stargazers_count}</b> stars</span><span><b>${r.repo.forks_count}</b> forks</span><span><b>${st.pulls}</b> pull requests</span></div>
     </div>
-    ${r.checks.map(c => `
-    <div class="check l${c.level}">
-      <div class="k"><span class="name">${esc(c.name)}</span><span class="lvl">${LVL[c.level]}</span></div>
-      <div><div class="hl">${esc(c.headline)}</div><ul>${c.evidence.map(e => `<li>${esc(e)}</li>`).join('')}</ul></div>
-    </div>`).join('')}
+    <div class="checks">${r.checks.map(c => `
+      <div class="check l${c.level}">
+        <div class="ch"><span>${esc(c.name)}.chk</span><span class="lvl">${LVL[c.level]}</span></div>
+        <div class="cb"><div class="hl">${esc(c.headline)}</div><ul>${c.evidence.map(e => `<li>${esc(e)}</li>`).join('')}</ul></div>
+      </div>`).join('')}
+    </div>
     ${r.synthetic ? '' : renderCopies(r.copies)}
-    ${r.synthetic
-      ? `<div class="foot"><span>Synthetic demo: a local repository built by <span class="mono">demo/make-staged-demo.mjs</span> to look staged. No such project, account or person exists.</span></div>`
-      : `<div class="foot"><span>Checked ${esc(ago(r.checked_at))} · public data from github.com · owner account created ${esc((r.owner.created_at||'').slice(0,10))}</span><span class="acts"><button type="button" id="share">Copy link</button><button type="button" id="refresh">Re-check now</button></span></div>`}
-  </div>`;
+    <div class="rep-foot">
+      <span>${r.synthetic ? 'Synthetic demo: a local repository built by <span class="mono">demo/make-staged-demo.mjs</span> to look staged. No such project, account or person exists.' : `Checked ${esc(ago(r.checked_at))} · public data from github.com · owner account created ${esc((r.owner.created_at || '').slice(0, 10))}`}</span>
+      ${r.synthetic ? '' : '<span class="acts"><button class="btn" type="button" data-act="share" id="share">COPY_LINK()</button><button class="btn" type="button" data-act="recheck">RECHECK()</button></span>'}
+    </div>`;
+  $('#w-report').classList.remove('hidden', 'min');
   document.title = `${r.repo.full_name}: ${r.grade} — REPO X-RAY`;
-  if (r.synthetic) return;
-  $('#refresh').onclick = () => check(r.repo.full_name, true);
-  $('#share').onclick = async () => {
-    const url = `${location.origin}/r/${r.repo.full_name}`;
-    try { await navigator.clipboard.writeText(url); $('#share').textContent = 'Link copied'; } catch { $('#share').textContent = url; }
-  };
+  // the log gets the same facts, one line each
+  line(`history: ${st.commits} commits, ${st.authors} authors${st.merges ? `, ${st.merges} merges` : ''}${st.files != null ? ` · ${st.files} source files read` : ''}`);
+  if (!r.synthetic) line(`crowd sample: ${st.forks} forks, ${st.pulls} pull requests`);
+  for (const c of r.checks) line(`[${LVL[c.level].toUpperCase()}] ${c.name.toUpperCase().padEnd(9)} ${c.headline}`, ['ok', 'note', 'flag'][c.level]);
+  if (!r.synthetic && r.copies) line(`tokens carrying the name: ${r.copies.count}`, 'muted');
+  line(`GRADE: ${r.grade} · ${r.line}`, ['ok', 'note', 'flag'][g]);
+  $('#logstate').textContent = 'done';
+  status(`Done: ${r.repo.full_name} ${r.grade}`, ['ok', 'note', 'flag'][g]);
 }
-const money = n => n >= 1e6 ? '$' + (n / 1e6).toFixed(2) + 'M' : n >= 1e3 ? '$' + Math.round(n / 1e3) + 'K' : '$' + Math.round(n);
-const age = iso => { if (!iso) return '?'; const h = (Date.now() - Date.parse(iso)) / 3600000; return h < 1 ? Math.round(h * 60) + ' min' : h < 48 ? Math.round(h) + ' h' : Math.round(h / 24) + ' d'; };
 function renderCopies(c) {
   if (!c) return '';
   const q = c.queries.map(x => `"${esc(x)}"`).join(' or ');
-  if (!c.count) return `<div class="copies"><div class="t">Tokens carrying this name</div><div class="sum">None found on DexScreener for ${q}.</div><div class="note">${esc(c.note)}</div></div>`;
+  const head = '<div class="ch">Tokens.lst · tokens carrying this name</div>';
+  if (!c.count) return `<div class="copies">${head}<div class="cb"><div class="sum">None found on DexScreener for ${q}.</div><div class="note">${esc(c.note)}</div></div></div>`;
   const sum = `${c.count} token${c.count === 1 ? '' : 's'} named ${q}${c.young ? `, ${c.young} minted in the last 30 days` : ''}; first ${c.first ? age(c.first) + ' ago' : '?'}; biggest ${money(c.top_mcap)} market cap; ${money(c.volume_24h)} traded in 24 h.`;
-  const rows = c.tokens.map(t => `<tr><td class="n"><a href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.symbol)} · ${esc(t.name)}</a><span class="ca">${esc(t.chain)} · ${esc(t.address.slice(0,6))}…${esc(t.address.slice(-4))}</span></td><td class="num">${money(t.mcap)}</td><td class="num hide-s">${money(t.vol24)}</td><td class="num">${esc(age(t.created))}</td></tr>`).join('');
-  return `<div class="copies"><div class="t">Tokens carrying this name</div><div class="sum">${sum}</div>
+  const rows = c.tokens.map(t => `<tr><td class="n"><a href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.symbol)} · ${esc(t.name)}</a><span class="ca">${esc(t.chain)} · ${esc(t.address.slice(0, 6))}…${esc(t.address.slice(-4))}</span></td><td class="num">${money(t.mcap)}</td><td class="num hide-s">${money(t.vol24)}</td><td class="num">${esc(age(t.created))}</td></tr>`).join('');
+  return `<div class="copies">${head}<div class="cb"><div class="sum">${sum}</div>
     <table><thead><tr><th>Token</th><th class="num">Mcap</th><th class="num hide-s">Vol 24h</th><th class="num">Age</th></tr></thead><tbody>${rows}</tbody></table>
-    <div class="note">${esc(c.note)}</div></div>`;
+    <div class="note">${esc(c.note)}</div></div></div>`;
 }
 
+// ---------- actions ----------
 async function check(repo, fresh) {
-  input.value = repo; go.disabled = true; status.className = 'status';
-  status.textContent = 'Reading the history… (a bare clone, no file contents; up to a minute for big repositories)';
-  out.innerHTML = '';
+  input.value = repo; go.disabled = true; err.textContent = '';
+  $('#logstate').textContent = 'running';
+  line(`GET /api/xray?repo=${repo}${fresh ? ' (skip cache)' : ''}`);
+  line('waiting for the server: bare clone, source files, GitHub API, DexScreener', 'muted');
+  status(`Checking ${repo}`, 'note');
   try {
     const r = await fetch(`/api/xray?repo=${encodeURIComponent(repo)}${fresh ? '&fresh=1' : ''}`);
     const j = await r.json();
     if (!r.ok || j.error) throw new Error(j.error || `Server said ${r.status}`);
-    status.textContent = '';
     render(j);
     history.replaceState(null, '', `/r/${j.repo.full_name}`);
-    loadRecent();
+    loadRecent(); refreshHealth();
+    $('#w-report').scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (e) {
-    status.className = 'status err'; status.textContent = e.message;
+    err.textContent = e.message; line(e.message, 'flag'); $('#logstate').textContent = 'error'; status('Error', 'flag');
   } finally { go.disabled = false; }
 }
-f.addEventListener('submit', e => { e.preventDefault(); if (input.value.trim()) check(input.value.trim()); });
-document.querySelectorAll('[data-try]').forEach(b => b.onclick = () => check(b.dataset.try));
-
+async function showDemo(name = 'staged') {
+  try {
+    line(`open demo/${name}-demo.json (synthetic, local)`);
+    const j = await (await fetch(`/demo/${encodeURIComponent(name)}-demo.json`)).json();
+    input.value = j.repo.full_name; render(j);
+    $('#w-report').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch { err.textContent = 'No such demo.'; }
+}
+async function refreshHealth() {
+  try { const h = await (await fetch('/api/health')).json(); if (h.github) $('#t-gh').textContent = `GitHub API: ${h.github.remaining.toLocaleString()}/${h.github.limit.toLocaleString()}`; $('#t-cache').textContent = `Cache: ${h.cached}`; } catch {}
+}
 async function loadRecent() {
   try {
     const list = await (await fetch('/api/recent')).json();
-    $('#recent').innerHTML = list.length ? list.map(x => `<div class="row" data-repo="${esc(x.full_name)}"><span class="r">${esc(x.full_name)}</span><span class="g ${x.grade === 'DRESSED UP' ? 'g2' : ''}">${esc(x.grade)}</span><span class="d">${esc(ago(x.checked_at))}</span></div>`).join('')
-      : '<div class="row"><span class="d">Nothing checked yet.</span></div>';
-    document.querySelectorAll('.row[data-repo]').forEach(el => el.onclick = () => { check(el.dataset.repo); scrollTo({ top: 0, behavior: 'smooth' }); });
+    const gc = g => g === 'DRESSED UP' ? 'g2' : g === 'LOOK CLOSER' ? 'g1' : 'g0';
+    $('#recent').innerHTML = list.length ? list.map(x => `<button class="row" type="button" data-repo="${esc(x.full_name)}"><span class="r">${esc(x.full_name)}</span><span class="g ${gc(x.grade)}">${esc(x.grade)}</span><span class="d">${esc(ago(x.checked_at))}</span></button>`).join('')
+      : '<div class="row"><span class="d" style="display:block">Nothing checked in the last hour.</span></div>';
   } catch {}
 }
-fetch('/api/health').then(r => r.json()).then(h => {
-  $('#ver').textContent = 'v' + h.version; $('#ver2').textContent = 'repo-xray v' + h.version;
-  $('#paynet').textContent = !h.paid ? 'paid route not switched on yet' : h.paid.network === 'mainnet' ? `Solana mainnet, ${h.paid.price} per call` : `Solana devnet while in test (test USDC, ${h.paid.price} per call)`;
-}).catch(() => {});
-loadRecent();
-// ?demo=staged shows the synthetic demo result (demo/make-staged-demo.mjs) without a network call to GitHub
-async function showDemo(name) {
-  try {
-    const j = await (await fetch(`/demo/${encodeURIComponent(name)}-demo.json`)).json();
-    input.value = j.repo.full_name; render(j);
-  } catch { status.className = 'status err'; status.textContent = 'No such demo.'; }
-}
-const share = location.pathname.match(/^\/r\/([^/]+\/[^/]+)\/?$/);
-const params = new URLSearchParams(location.search);
-const q = share ? decodeURIComponent(share[1]) : params.get('repo');
-if (params.get('demo')) showDemo(params.get('demo')); else if (q) check(q);
+const show = id => { const w = $(id); w.classList.remove('hidden', 'min'); w.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+const ACT = {
+  new: () => { show('#w-main'); input.value = ''; input.focus(); },
+  clear: () => { input.value = ''; input.focus(); },
+  demo: () => showDemo('staged'),
+  recent: () => show('#w-recent'),
+  docs: () => show('#w-docs'),
+  api: () => show('#w-api'),
+  max: () => $('#w-main').classList.toggle('max'),
+  recheck: () => { if (last && !last.synthetic) { scrollTo({ top: 0, behavior: 'smooth' }); check(last.repo.full_name, true); } else if (input.value.trim()) check(input.value.trim(), true); else input.focus(); },
+  share: async () => {
+    if (!last || last.synthetic) { line('Nothing to share yet: run a check first.', 'note'); return; }
+    const url = `${location.origin}/r/${last.repo.full_name}`;
+    try { await navigator.clipboard.writeText(url); line(`copied ${url}`, 'ok'); const b = $('#share'); if (b) b.textContent = 'LINK_COPIED'; } catch { line(url); }
+  },
+  copylog: async () => { try { await navigator.clipboard.writeText([...log.children].map(d => '> ' + d.textContent).join('\n')); line('log copied', 'ok'); } catch {} },
+};
+function closeMenus() { document.querySelectorAll('.menu.open').forEach(m => m.classList.remove('open')); }
+document.addEventListener('click', e => {
+  const row = e.target.closest('.row[data-repo]');
+  if (row) { scrollTo({ top: 0, behavior: 'smooth' }); check(row.dataset.repo); return; }
+  const a = e.target.closest('[data-act]');
+  if (a) { e.preventDefault(); closeMenus(); $('#menubar').classList.remove('open'); ACT[a.dataset.act]?.(); return; }
+  const m = e.target.closest('.menu>button');
+  if (m) { const menu = m.parentElement, open = menu.classList.contains('open'); closeMenus(); if (!open) menu.classList.add('open'); return; }
+  const w = e.target.closest('[data-win]');
+  if (w) {
+    const win = w.closest('.win');
+    if (w.dataset.win === 'min') win.classList.toggle('min');
+    if (w.dataset.win === 'max') win.classList.toggle('max');
+    if (w.dataset.win === 'close') win.classList.add('hidden');
+    return;
+  }
+  if (!e.target.closest('.menu')) closeMenus();
+});
+document.addEventListener('mouseover', e => { const m = e.target.closest('.menu'); if (m && document.querySelector('.menu.open') && !m.classList.contains('open')) { closeMenus(); m.classList.add('open'); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeMenus(); $('#menubar').classList.remove('open'); } if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n' && !e.shiftKey) { e.preventDefault(); ACT.new(); } });
+$('#burger').onclick = () => $('#menubar').classList.toggle('open');
+$('#f').addEventListener('submit', e => { e.preventDefault(); if (input.value.trim()) check(input.value.trim()); else input.focus(); });
+$('#paste').onclick = async () => { try { input.value = (await navigator.clipboard.readText()).trim(); input.focus(); } catch { input.focus(); } };
+document.querySelectorAll('[data-try]').forEach(b => b.onclick = () => check(b.dataset.try));
+document.querySelectorAll('.origin').forEach(s => s.textContent = location.origin);
+
+icons();
+(async () => {
+  await boot(); loadRecent();
+  const share = location.pathname.match(/^\/r\/([^/]+\/[^/]+)\/?$/);
+  const params = new URLSearchParams(location.search);
+  const q = share ? decodeURIComponent(share[1]) : params.get('repo');
+  if (params.get('demo')) showDemo(params.get('demo')); else if (q) check(q);
+})();
 </script>
 </body>
 </html>
